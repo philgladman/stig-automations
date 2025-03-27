@@ -1,0 +1,2 @@
+stig_parser==1.1.1
+xmltodict==0.14.2
