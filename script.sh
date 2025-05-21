@@ -32,4 +32,4 @@ python3 -m pip install -r stig-automations/requirements.txt
 
 python3 stig-automations/stig_combined.py
 
-sed -i "s/Red_Hat_Enterprise_Linux_9/RHEL_9_STIG/g" "$STIG_RESULTS_DIR/result-xccdf.xml"
+sed -i "s/Red_Hat_Enterprise_Linux_9/RHEL_9_STIG/g" "$STIG_RESULTS_DIR/*.xml"
