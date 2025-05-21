@@ -10,6 +10,7 @@
 ##### oscap xccdf eval --report test.html --stig-viewer test.ckl --results test-xccdf.xml /home/pgladman/test-oscap/U_RHEL_9_V2R3_STIG_SCAP_1-3_Benchmark-updated.xml
 ##### NEXT STEPS - Currently this will pull create a empty checklist file, and then read in a xccdf.xml with scan results and convert that to a
 ##### simple json/dictionary. Next step is work on updating the stig checklist with the status of the scan results
+import os
 import xmltodict
 import json
 from stig_parser import convert_xccdf, generate_ckl, generate_ckl_file
@@ -18,11 +19,13 @@ import xml.etree.ElementTree as ET
 
 
 formatted_date = datetime.now().strftime("%b_%d_%Y_%H%M%S")
-working_dir = "/Users/phillipgladman/Desktop/DevOps/tcode/oscap-tests"
-cyber_dot_mil_stig_name = "U_RHEL_9_V2R3_STIG"
-stig_zip_file = (f"{working_dir}/{cyber_dot_mil_stig_name}.zip")
-stig_result_file = (f"{working_dir}/test-xccdf.xml")
-export_ckl_file = (f"{working_dir}/{cyber_dot_mil_stig_name}_{formatted_date}.ckl")
+working_dir = os.environ['STIG_WORKING_DIR']
+cyber_dot_mil_stig_name = os.environ['STIG_CYBER_MIL_NAME']
+stig_files_dir = os.environ['STIG_FILES_DIR']
+stig_results_dir = os.environ['STIG_RESULTS_DIR']
+stig_zip_file = (f"{working_dir}/{stig_files_dir}/{cyber_dot_mil_stig_name}.zip") ## U_RHEL_9_V2R4_STIG.zip
+stig_result_file = (f"{working_dir}/{stig_results_dir}/result-xccdf.xml")
+export_ckl_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_{formatted_date}.ckl")
 
 def convert_xml_file_to_dict(filename):
     with open(filename, "r") as f:
