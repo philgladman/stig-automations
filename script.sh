@@ -22,8 +22,6 @@ oscap xccdf eval --report "$STIG_RESULTS_DIR/result.html" --results "$STIG_RESUL
 echo "hello"
 
 ## Create checklist file
-git clone https://github.com/philgladman/stig-automations.git
-
 curl -L "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/${STIG_CYBER_MIL_NAME}.zip" -o "${STIG_FILES_DIR}/${STIG_CYBER_MIL_NAME}.zip"
 
 python3 -m ensurepip
@@ -32,4 +30,4 @@ python3 -m pip install -r stig-automations/requirements.txt
 
 python3 stig-automations/stig_combined.py
 
-sed -i "s/Red_Hat_Enterprise_Linux_9/RHEL_9_STIG/g" "$STIG_RESULTS_DIR/*.xml"
+sed -i "s/Red_Hat_Enterprise_Linux_9/RHEL_9_STIG/g" "$STIG_RESULTS_DIR"/*.ckl
