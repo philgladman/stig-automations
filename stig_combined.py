@@ -17,14 +17,13 @@ from stig_parser import convert_xccdf, generate_ckl, generate_ckl_file
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
-
 formatted_date = datetime.now().strftime("%b_%d_%Y_%H%M%S")
 working_dir = os.environ['STIG_WORKING_DIR']
 cyber_dot_mil_stig_name = os.environ['STIG_CYBER_MIL_NAME']
 stig_files_dir = os.environ['STIG_FILES_DIR']
 stig_results_dir = os.environ['STIG_RESULTS_DIR']
 stig_zip_file = (f"{working_dir}/{stig_files_dir}/{cyber_dot_mil_stig_name}.zip") ## U_RHEL_9_V2R4_STIG.zip
-stig_result_file = (f"{working_dir}/{stig_results_dir}/result-xccdf.xml")
+stig_result_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_xccdf.xml")
 export_ckl_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_{formatted_date}.ckl")
 
 def convert_xml_file_to_dict(filename):
@@ -102,20 +101,26 @@ checklist_info ={
 }
 
 ## Generate CKL XML OBJECT
+print("1")
 raw_ckl = generate_ckl(stig_zip_file, checklist_info)
 
 ## Save new checklist to a .ckl file
+print("2")
 generate_ckl_file(raw_ckl, export_ckl_file)
 
 ## Create dictonary from xccdf.xml scan results file that contains only rule ids and status
+print("3")
 rule_results_dict = create_stig_results_dict(xml_dict)
 
 ## Read and parse base checklist .ckl file
+print("4")
 tree = ET.ElementTree(file=export_ckl_file)
 root = tree.getroot()
 
 ## Overwrite status of base checklist .ckl file with results from xccdf.xm
+print("5")
 overwite_stig_status(rule_results_dict, root[1][0])
 
 ## Write/save updated .ckl to file
+print("6")
 tree.write(export_ckl_file, encoding='utf-8')
