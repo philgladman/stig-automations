@@ -45,3 +45,6 @@ curl -L "https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/${STIG_CYBER_MIL_
 python3 stig-automations/stig_combined.py
 sed -i "s/>Kubernetes</>Kubernetes_STIG</g" "$STIG_RESULTS_DIR"/*.ckl
 
+bash "$STIG_WORKING_DIR"/stig-automations/stig-checklist-overrides.sh
+
+aws s3 cp --recursive $STIG_RESULTS_DIR/ s3://phil-misc-backups-bucket/results-1/

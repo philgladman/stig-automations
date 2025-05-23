@@ -101,26 +101,20 @@ checklist_info ={
 }
 
 ## Generate CKL XML OBJECT
-print("1")
 raw_ckl = generate_ckl(stig_zip_file, checklist_info)
 
 ## Save new checklist to a .ckl file
-print("2")
 generate_ckl_file(raw_ckl, export_ckl_file)
 
 ## Create dictonary from xccdf.xml scan results file that contains only rule ids and status
-print("3")
 rule_results_dict = create_stig_results_dict(xml_dict)
 
 ## Read and parse base checklist .ckl file
-print("4")
 tree = ET.ElementTree(file=export_ckl_file)
 root = tree.getroot()
 
 ## Overwrite status of base checklist .ckl file with results from xccdf.xm
-print("5")
 overwite_stig_status(rule_results_dict, root[1][0])
 
 ## Write/save updated .ckl to file
-print("6")
 tree.write(export_ckl_file, encoding='utf-8')
