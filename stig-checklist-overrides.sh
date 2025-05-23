@@ -67,7 +67,7 @@ function override_stig_check() {
 #   echo "original_stig_data"
 #   echo "$original_stig_data"
 #   echo "############################################"
-  formatted_original_stig_data=$(echo "$original_stig_data" | sed 's|\@|\\@|g' |sed 's@\*@\\*@g' | sed 's@\"@\\"@g' | sed 's@\$@\\$@g' | sed 's@\[@\\[@g' | sed 's@\]@\\]@g' | sed 's@\&@\\&@g' | sed "s/\\\n/\\\\\\\n/g" | sed -E "s/^[[:space:]]+$/\\\s\\\s/g" | sed 's@\%@\\%@g' | sed -z 's@\n@\\n@g' | sed 's@</VULN>\\n@</VULN>@g')
+  formatted_original_stig_data=$(echo "$original_stig_data" | sed 's|\@|\\@|g' |sed 's@\*@\\*@g' | sed 's@\"@\\"@g' | sed 's@\$@\\$@g' | sed 's@\[@\\[@g' | sed 's@\]@\\]@g' | sed 's@\&@\\&@g' | sed "s/\\\n/\\\\\\\n/g" | sed 's@\%@\\%@g' | sed -z 's@\n@\\n@g' | sed 's@</VULN>\\n@</VULN>@g')
   new_comment="<COMMENTS>${status} - ${todays_date}-${engineers_initials} - evidence: ${comment}</COMMENTS>"
   new_status="<STATUS>${official_status}</STATUS>"
   new_stig_data=$(echo "$formatted_original_stig_data" | sed "s@${old_comment}@${new_comment}@g" | sed "s@${old_status}@${new_status}@g")
@@ -79,7 +79,7 @@ function override_stig_check() {
 #   echo "new_stig_data"
 #   echo "$new_stig_data"
 #   echo "############################################"
-  ## Comment below for debugging
+#   Comment below for debugging
 #   echo "############################################"
 #   echo "grep"
 #   grep -Poz "$formatted_original_stig_data" "$stig_path"  | tr -d '\000'
@@ -94,6 +94,7 @@ function override_stigs() {
   local stig_checks_json="$1"
   local stig_path="$2"
 
+  sed -Ei "s/^[[:space:]]+$//g" "$stig_path"
   stig_checks_ids=($(echo "$stig_checks_json" | jq -r ".stig_checks[].check_id"))
   for id in "${stig_checks_ids[@]}"; do
     check_data=$(echo "$stig_checks_json" | jq ".stig_checks[] | select(.check_id==\"$id\")")
