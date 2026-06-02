@@ -20,7 +20,7 @@ services:
     cap_add:
       - SYS_NICE  # workaround MySQL logging bug => mbind: Operation not permitted 
   api:
-    image: nuwcdivnpt/stig-manager:latest
+    image: registry1.dso.mil/ironbank/opensource/stig-manager/stig-manager:1.5.15
     platform: linux/amd64
     environment:
       - STIGMAN_OIDC_PROVIDER=http://auth:8080/realms/stigman
@@ -31,8 +31,8 @@ services:
       - STIGMAN_CLIENT_OIDC_PROVIDER=http://localhost:8080/realms/stigman
       # Customize the Welcome widget on the Home tab
       # - STIGMAN_CLIENT_WELCOME_IMAGE=<client-relative-url-to-your-logo>
-      - STIGMAN_CLIENT_WELCOME_TITLE=Deployment Information
-      - STIGMAN_CLIENT_WELCOME_MESSAGE=Your deployment's Support process can be described here. You can provide a link below.
+      - STIGMAN_CLIENT_WELCOME_TITLE="Deployment Information"
+      - STIGMAN_CLIENT_WELCOME_MESSAGE="Your deployment's Support process can be described here. You can provide a link below."
       - STIGMAN_CLIENT_WELCOME_LINK=http://link_to_help_pages
 
     init: true

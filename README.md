@@ -37,7 +37,13 @@ unzip U_RHEL_9_V2R3_STIG_SCAP_1-3_Benchmark.zip
 line_end=$(grep -n "platform-specification" U_RHEL_9_V2R3_STIG_SCAP_1-3_Benchmark.xml | tail -n 1 | cut -d ":" -f 1)
 sed -i "${line_start},${line_end}d" U_RHEL_9_V2R3_STIG_SCAP_1-3_Benchmark.xml  -->
 line_cpe=$(grep -n "xccdf:platform idref=\"cpe:/o:redhat:enterprise_linux:9.0\" />" U_RHEL_9_V2R3_STIG_SCAP_1-3_Benchmark.xml | tail -n 1 | cut -d ":" -f 1)
-sed -i "${line_cpe}d" U_RHEL_9_V2R3_STIG_SCAP_1-3_Benchmark.xml 
+sed -i "${line_cpe}d" U_RHEL_9_V2R3_STIG_SCAP_1-3_Benchmark.xml
+
+###
+line_start=$(grep -n "platform-specification" /home/ec2-user/iac/amis/eks-image-builder/stig-remediation/cyber-mil-resources/U_Kubernetes_V2R4_STIG_SCAP_1-3_Benchmark.xml | head -n 1 | cut -d ":" -f 1)
+line_end=$(grep -n "platform-specification" /home/ec2-user/iac/amis/eks-image-builder/stig-remediation/cyber-mil-resources/U_Kubernetes_V2R4_STIG_SCAP_1-3_Benchmark.xml | tail -n 1 | cut -d ":" -f 1)
+sed -i "${line_start},${line_end}d" /home/ec2-user/iac/amis/eks-image-builder/stig-remediation/cyber-mil-resources/U_Kubernetes_V2R4_STIG_SCAP_1-3_Benchmark.xml
+
 - Run oscap to scan local machine with the 
 oscap xccdf eval --report test.html --stig-viewer test.ckl --results test-xccdf.xml U_RHEL_9_V2R3_STIG_SCAP_1-3_Benchmark.xml
 - Clone stig automations repo
@@ -56,3 +62,25 @@ sudo python3 stig-automations/stig_combined.py
 scp /home/ec2-user/oscap-stigs/U_RHEL_9_V2R3_STIG_Mar_27_2025_142924.ckl
 scp /home/pgladman/U_RHEL_9_V2R3_STIG_Mar_27_2025_142924.ckl
 - Run stig-checklist-overrides.sh bash script to override false positives
+
+## Notes again
+scap
+- wget https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Amazon_Linux_2023_V1R0-1_STIG_SCAP_1-3_DraftBenchmark.zip
+- wget https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Kubernetes_V2R4_STIG_SCAP_1-3_Benchmark.zip
+stigs
+- wget https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Amazon_Linux_2023_V1R3_STIG.zip
+- wget https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_Kubernetes_V2R6_STIG.zip
+
+- sudo su -
+- oscap xccdf eval --results test-xccdf-3.xml --profile xccdf_mil.disa.stig_profile_MAC-1_Sensitive /home/gladman.phillip/iac/amis/eks-image-builder/stig-remediation/cyber-mil-resources/U_Amazon_Linux_2023_V1R0.1_STIG_SCAP_1-3_DraftBenchmark.xml
+- cat test-xccdf-3.xml | grep "<result>" | sort | uniq -c
+- cat test-xccdf-3.xml | grep "<cdf:result>" | sort | uniq -c
+
+## Convert scc xml files to checklit
+export STIG_WORKING_DIR="/Users/philgladman/Desktop/home-dir/DevOps/personal/stigs"
+export STIG_CYBER_MIL_NAME="U_Kubernetes_V2R6_STIG"
+export STIG_FILES_DIR="resources"
+export STIG_RESULTS_DIR="results/scc"
+
+- run scc against AL2023 and K8S
+- run python script with result xccdf.xml files to create checklist
