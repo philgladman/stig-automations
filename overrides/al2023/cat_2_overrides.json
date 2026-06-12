@@ -1,0 +1,9 @@
+{
+  "stig_checks": [
+    {
+      "check_id": "RHEL-09-171011",
+      "status": "NA",
+      "comment": "This does not have a GUI"
+    }
+  ]
+}

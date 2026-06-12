@@ -1,0 +1,9 @@
+{
+  "stig_checks": [
+    {
+      "check_id": "CNTR-K8-000220",
+      "status": "Not_Applicable",
+      "comment": "Check is related to Kubernetes Control Plane which is managed by AWS and we do not have access to.\n\nNot Applicable | Additional notes...."
+    }
+  ]
+}

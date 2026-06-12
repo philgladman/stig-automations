@@ -1,0 +1,9 @@
+{
+  "stig_checks": [
+    {
+      "check_id": "RHEL-09-651030",
+      "status": "Pass",
+      "comment": "AIDE is configured here - REPLACE_ME"
+    }
+  ]
+}
