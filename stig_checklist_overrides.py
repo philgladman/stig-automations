@@ -9,14 +9,15 @@ import xml.etree.ElementTree as ET
 # export STIG_OVERRIDES_DIR="overrides/k8s"
 # export STIG_RESULTS_DIR="results/scc"
 
+formatted_date = datetime.now().strftime("%b_%d_%Y_%H%M%S")
 todays_date = datetime.now().strftime("%m-%d-%Y")
 working_dir = os.environ['STIG_WORKING_DIR'] ## /Users/philgladman/Desktop/home-dir/DevOps/personal/stigs
 cyber_dot_mil_stig_name = os.environ['STIG_CYBER_MIL_NAME'] ## U_Kubernetes_V2R6_STIG
 stig_overrides_dir = os.environ['STIG_OVERRIDES_DIR'] ## overrides/k8s
 stig_overrides_dir_full_path = (f"{working_dir}/{stig_overrides_dir}") ## /Users/philgladman/Desktop/home-dir/DevOps/personal/stigs/overrides/k8s
 stig_results_dir = os.environ['STIG_RESULTS_DIR'] ## results/scc
-stig_result_checklist_input_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_Jun_02_2026_145207_post_python_script.ckl")
-stig_result_checklist_output_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_Jun_02_2026_145207_post_python_overrides_test.ckl")
+stig_result_checklist_input_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_without_overrides.ckl")
+stig_result_checklist_output_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_{formatted_date}_with_overrides.ckl")
 engineer = os.environ.get("STIG_OVERRIDE_ENGINEER", "tcode_pipeline")
 
 ## Load all json override files into a combined list
@@ -69,6 +70,6 @@ for override_check in override_checks:
             "Check may be deprecated. Skipping override."
         )
 
-## Write updated CKL checklist to new file
-ET.indent(tree, space="\t")
-tree.write(stig_result_checklist_output_file, encoding='UTF-8', xml_declaration=True, short_empty_elements=False)
+# ## Write updated CKL checklist to new file
+# ET.indent(tree, space="\t")
+# tree.write(stig_result_checklist_output_file, encoding='UTF-8', xml_declaration=True, short_empty_elements=False)

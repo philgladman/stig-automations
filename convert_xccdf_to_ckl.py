@@ -17,7 +17,7 @@ from stig_parser import convert_xccdf, generate_ckl, generate_ckl_file
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
-formatted_date = datetime.now().strftime("%b_%d_%Y_%H%M%S")
+# formatted_date = datetime.now().strftime("%b_%d_%Y_%H%M%S")
 working_dir = os.environ['STIG_WORKING_DIR']
 cyber_dot_mil_stig_name = os.environ['STIG_CYBER_MIL_NAME']
 stig_files_dir = os.environ['STIG_FILES_DIR']
@@ -25,7 +25,8 @@ stig_results_dir = os.environ['STIG_RESULTS_DIR']
 stig_zip_file = (f"{working_dir}/{stig_files_dir}/{cyber_dot_mil_stig_name}.zip") ## U_RHEL_9_V2R4_STIG.zip
 stig_result_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_xccdf.xml")
 # stig_result_file = "/Users/philgladman/Desktop/home-dir/DevOps/personal/stigs/U_Kubernetes_V2R6_Manual_STIG/U_Kubernetes_STIG_V2R6_Manual-xccdf.xml"
-export_ckl_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_{formatted_date}_post_python_script.ckl")
+# export_ckl_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_{formatted_date}_post_python_script.ckl")
+export_ckl_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_without_overrides_test.ckl")
 
 # Check if it exists (file or directory)
 if os.path.exists(stig_zip_file):
@@ -58,18 +59,20 @@ def get_hostname(dictonary):
 
 def get_stig_id(dictonary):
     rear_matter = dictonary['cdf:Benchmark']['cdf:rear-matter']
-    for line in rear_matter.splitlines():
-        key, separator, value = line.partition(":--:")
-        if separator and key == "stigid":
-            return value
-
-    raise ValueError("Unable to find stigid in XCCDF rear-matter")
+    if rear_matter:
+        for line in rear_matter.splitlines():
+            key, separator, value = line.partition(":--:")
+            if separator and key == "stigid":
+                return value
+    else:
+        return None
 
 def create_stig_results_dict(dictonary):
     rule_results = dictonary['cdf:Benchmark']['cdf:TestResult']['cdf:rule-result']
     rule_results_dict = []
     for rule in rule_results:
         id_ref = rule['@idref'].split("_", 3)[3]
+        check_id = rule['@version']
         status = rule['cdf:result']
         if status == "fail":
             status = "Open"
@@ -83,7 +86,7 @@ def create_stig_results_dict(dictonary):
             status = "Not_Reviewed"
         else:
             print("ERROR: Status not found")
-        rule_dict = {"rule_id": id_ref, "status": status}
+        rule_dict = {"rule_id": id_ref, "status": status, "check_id": check_id}
         rule_results_dict.append(rule_dict)
 
     return rule_results_dict
@@ -98,21 +101,20 @@ def overwrite_stig_id(stig_info, stig_id):
 
     raise ValueError("Unable to find stigid in generated checklist")
 
-def overwrite_stig_status(results, base):
+def set_stig_status(results, base):
     for rule in results:
-        result_rule_id = rule["rule_id"]
+        result_check_id = rule["check_id"]
         result_rule_status = rule["status"]
-        base_stig_status = ""
+        # base_stig_status = ""
         for base_stig_data in base:
-            base_stig_rule_id = base_stig_data[3][1].text
-            if base_stig_rule_id == result_rule_id:
-                print("#"*50)
+            base_stig_check_id = base_stig_data[4][1].text
+            if base_stig_check_id == result_check_id:
                 if base_stig_data.tag == "VULN":
                     for vuln in base_stig_data:
                         if vuln.tag == "STATUS":
-                            base_stig_status = vuln.text
+                            # base_stig_status = vuln.text
                             vuln.text = result_rule_status
-                            print(f"Overwriting rule: {base_stig_rule_id} from {base_stig_status} to {result_rule_status}")
+                            print(f"Setting rule: {result_check_id} to {result_rule_status}")
 
 ## Convert xccdf.xml scan results file into python dict so can be parsed
 xml_dict = convert_xml_file_to_dict(stig_result_file)
@@ -153,11 +155,14 @@ rule_results_dict = create_stig_results_dict(xml_dict)
 tree = ET.ElementTree(file=export_ckl_file)
 root = tree.getroot()
 
-## Overwrite STIG ID with the value from xccdf.xml
-overwrite_stig_id(root.find("./STIGS/iSTIG/STIG_INFO"), stig_id)
+## Overwrite STIG ID with the value from xccdf.xml if one exists
+if stig_id:
+    overwrite_stig_id(root.find("./STIGS/iSTIG/STIG_INFO"), stig_id)
+else:
+    print("No stigid found in xccdf.xml. Leaving generated checklist stigid unchanged.")
 
-## Overwrite status of base checklist .ckl file with results from xccdf.xml
-overwrite_stig_status(rule_results_dict, root[1][0])
+## Set status of base checklist .ckl file with results from xccdf.xml
+set_stig_status(rule_results_dict, root[1][0])
 
 ## Write/save updated .ckl to file
 ET.indent(tree, space="\t")
