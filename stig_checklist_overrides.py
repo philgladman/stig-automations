@@ -17,8 +17,23 @@ stig_overrides_dir = os.environ['STIG_OVERRIDES_DIR'] ## overrides/k8s
 stig_overrides_dir_full_path = (f"{working_dir}/{stig_overrides_dir}") ## /Users/philgladman/Desktop/home-dir/DevOps/personal/stigs/overrides/k8s
 stig_results_dir = os.environ['STIG_RESULTS_DIR'] ## results/scc
 stig_result_checklist_input_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_without_overrides.ckl")
-stig_result_checklist_output_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_{formatted_date}_with_overrides.ckl")
-engineer = os.environ.get("STIG_OVERRIDE_ENGINEER", "tcode_pipeline")
+stig_result_checklist_output_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_with_overrides.ckl")
+engineer = os.environ.get("STIG_OVERRIDE_ENGINEER", "REPLACE_ME_pipeline")
+
+
+# Check if it exists (file or directory)
+if os.path.exists(stig_overrides_dir_full_path):
+    print(f"Path exists: {stig_overrides_dir_full_path}")
+else:
+    print(f"Path does not exist: {stig_overrides_dir_full_path}")
+    exit(1)
+
+if os.path.exists(stig_result_checklist_input_file):
+    print(f"Path exists: {stig_result_checklist_input_file}")
+else:
+    print(f"Path does not exist: {stig_result_checklist_input_file}")
+    exit(1)
+
 
 ## Load all json override files into a combined list
 def load_overrides(overrides_dir):
@@ -70,6 +85,6 @@ for override_check in override_checks:
             "Check may be deprecated. Skipping override."
         )
 
-# ## Write updated CKL checklist to new file
-# ET.indent(tree, space="\t")
-# tree.write(stig_result_checklist_output_file, encoding='UTF-8', xml_declaration=True, short_empty_elements=False)
+## Write updated CKL checklist to new file
+ET.indent(tree, space="\t")
+tree.write(stig_result_checklist_output_file, encoding='UTF-8', xml_declaration=True, short_empty_elements=False)

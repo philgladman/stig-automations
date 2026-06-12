@@ -17,16 +17,13 @@ from stig_parser import convert_xccdf, generate_ckl, generate_ckl_file
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
-# formatted_date = datetime.now().strftime("%b_%d_%Y_%H%M%S")
 working_dir = os.environ['STIG_WORKING_DIR']
 cyber_dot_mil_stig_name = os.environ['STIG_CYBER_MIL_NAME']
 stig_files_dir = os.environ['STIG_FILES_DIR']
 stig_results_dir = os.environ['STIG_RESULTS_DIR']
 stig_zip_file = (f"{working_dir}/{stig_files_dir}/{cyber_dot_mil_stig_name}.zip") ## U_RHEL_9_V2R4_STIG.zip
-stig_result_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_xccdf.xml")
-# stig_result_file = "/Users/philgladman/Desktop/home-dir/DevOps/personal/stigs/U_Kubernetes_V2R6_Manual_STIG/U_Kubernetes_STIG_V2R6_Manual-xccdf.xml"
-# export_ckl_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_{formatted_date}_post_python_script.ckl")
-export_ckl_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_without_overrides_test.ckl")
+stig_result_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_scc_result_xccdf.xml")
+export_ckl_file = (f"{working_dir}/{stig_results_dir}/{cyber_dot_mil_stig_name}_without_overrides.ckl")
 
 # Check if it exists (file or directory)
 if os.path.exists(stig_zip_file):
@@ -58,14 +55,9 @@ def get_hostname(dictonary):
             return host_name
 
 def get_stig_id(dictonary):
-    rear_matter = dictonary['cdf:Benchmark']['cdf:rear-matter']
-    if rear_matter:
-        for line in rear_matter.splitlines():
-            key, separator, value = line.partition(":--:")
-            if separator and key == "stigid":
-                return value
-    else:
-        return None
+    benchmark_data = dictonary['cdf:Benchmark']['cdf:TestResult']['cdf:benchmark']['@id']
+
+    return benchmark_data.split("xccdf_mil.disa.stig_benchmark_")[1]
 
 def create_stig_results_dict(dictonary):
     rule_results = dictonary['cdf:Benchmark']['cdf:TestResult']['cdf:rule-result']
@@ -155,11 +147,8 @@ rule_results_dict = create_stig_results_dict(xml_dict)
 tree = ET.ElementTree(file=export_ckl_file)
 root = tree.getroot()
 
-## Overwrite STIG ID with the value from xccdf.xml if one exists
-if stig_id:
-    overwrite_stig_id(root.find("./STIGS/iSTIG/STIG_INFO"), stig_id)
-else:
-    print("No stigid found in xccdf.xml. Leaving generated checklist stigid unchanged.")
+## Overwrite STIG ID with the value from xccdf.xml
+overwrite_stig_id(root.find("./STIGS/iSTIG/STIG_INFO"), stig_id)
 
 ## Set status of base checklist .ckl file with results from xccdf.xml
 set_stig_status(rule_results_dict, root[1][0])
